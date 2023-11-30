@@ -1,0 +1,51 @@
+def cyk(n,dict_productii,start,cuvant):
+    matrice = [[set() for i in range(0,len(cuvant))] for j in range(0,len(cuvant))]
+    j = 0
+    for j in range(0,len(cuvant)):
+        for cheie in dict_productii:
+            for valoare in dict_productii[cheie]:
+                if valoare == cuvant[j]:
+                    matrice[j][j].add(cheie)
+
+    for l in range(2,len(cuvant)+1):
+        i = 0
+        for i in range(0, n-l+2):
+            j = i + l - 1
+            for k in range(i,j):
+                for neterminal in dict_productii:
+                    for productie in dict_productii[neterminal]:
+                        if len(productie) == 2:
+                            if productie[0] in matrice[i][k] and productie[1] in matrice[k+1][j]:
+                                matrice[i][j].add(neterminal)
+               
+    if start in matrice[0][len(cuvant)-1]:
+        return True
+    else:
+        return False
+
+
+
+f = open("input.txt","r")
+n = int(f.readline())
+#n este numarul de neterminale
+nr_productii = int(f.readline())
+i = 0
+dict_productii = {}
+while i < nr_productii:
+    aux = f.readline()
+    productie = aux.split()
+    neterminal = productie[0].strip()
+    prod = productie[1].strip()
+    if neterminal not in dict_productii:
+        dict_productii[neterminal] = {prod}
+    else:
+        dict_productii[neterminal].add(prod)
+    i += 1
+start = f.readline().strip()
+cuvant = f.readline().strip()
+f.close()
+
+if cyk(n, dict_productii, start, cuvant) == True:
+    print("cuvantul este acceptat")
+else:
+    print("cuvantul nu acceptat")

@@ -1,0 +1,90 @@
+f = open("input.txt","r")
+#citim nr de stari
+nr_stari = int(f.readline().strip())
+nr_litere_alfabet = int(f.readline().strip())
+
+
+alfabet = []
+#literele din alfabet se afla acum intr o lista
+for i in range(0,nr_litere_alfabet):
+    litera = f.readline()
+    alfabet.append(litera.strip())
+
+stare_init = int(f.readline().strip())
+simbol_stiva = f.readline().strip()
+stiva = []
+
+nr_stari_finale = int(f.readline().strip())
+stari_finale = []
+
+#starile finale sunt intr o lista acum
+for i in range(0,nr_stari_finale):
+    stare = int(f.readline().strip())
+    stari_finale.append(stare)
+
+nr_tranzitii = int(f.readline().strip())
+tranzitii = {}
+
+#citim tranzitiile si le salvam intr un dictionar de dictionare
+for i in range(0,nr_tranzitii):
+    aux = f.readline().split()
+    stare = int(aux[0].strip())
+    litera = aux[1].strip()
+    este_deja_pe_stiva = aux[2].strip()
+    vreau_sa_pun_pe_stiva = aux[3].strip()
+    stare_urm = int(aux[4].strip())
+    if stare not in tranzitii:
+        tranzitii[stare] = {litera:[(este_deja_pe_stiva, vreau_sa_pun_pe_stiva, stare_urm)]}
+    else:
+        if litera not in tranzitii[stare]:
+            tranzitii[stare][litera] = [(este_deja_pe_stiva, vreau_sa_pun_pe_stiva, stare_urm)]
+        else:
+            tranzitii[stare][litera].append((este_deja_pe_stiva, vreau_sa_pun_pe_stiva, stare_urm))
+#citesc cuvantul
+cuvant = f.readline().strip()
+f.close()
+
+stiva.append(simbol_stiva)
+stare_curenta = stare_init
+acceptat = True
+#parcurgem fiecare litera din cuv
+for litera in cuvant:
+    #Dacă litera nu se găsește în tranzitii pentru starea curentă cuv nu e accepatt
+    if litera not in tranzitii[stare_curenta]:
+        acceptat = False
+        break
+    else:
+        #in varf avem varful stivei
+        varf = stiva.pop()
+        viitoare_stare = -1
+        #Parcurgem fiecare tranzitie pentru litera curentă și starea curentă
+        for tranzitie in tranzitii[stare_curenta][litera]:
+            #daca gasesc aceeasi litera ca in varful stivei
+            if tranzitie[0] == varf:
+                #in cazul in care e lambda
+                if tranzitie[1] == 'l':
+                    viitoare_stare = tranzitie[2]
+                else:
+                    #parcurgem literele de pus pe stiva in ordine inverasa
+                    for litera in reversed(tranzitie[1]):
+                        stiva.append(litera)
+                    viitoare_stare = tranzitie[2]
+        #daca nu gasim nicio tranzitie valida
+        if viitoare_stare == -1:
+            acceptat = False
+            break
+        else:
+            stare_curenta = viitoare_stare
+#ultimul pas e sa scoatem simbolul distrinct de pe stiva
+#de aceea daca stiva e formata numai din el si ultima tranzitie iti goleste stiva si ajunge in stare finala cuv este accepat
+if acceptat == True:
+    if 'l' in tranzitii[stare_curenta]:
+        varf = stiva.pop()
+        for tranzitie in tranzitii[stare_curenta]['l']:
+            if tranzitie[0] == varf and tranzitie[2] in stari_finale:
+                print(" acceptat")
+                break
+    else:
+        print(" acceptat")
+else:
+    print("neaceptat")
